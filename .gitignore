@@ -1,2 +1,5 @@
 # Dependency directories
 node_modules/
+
+# Output files
+dna_conversion_samples/output_202*
