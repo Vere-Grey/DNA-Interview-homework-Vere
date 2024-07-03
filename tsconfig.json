@@ -1,8 +1,10 @@
 {
   "compilerOptions": {
+    "lib": ["ES2022"],
     "target": "ES2022",
     "module": "commonjs",
     "strict": true,
-    "esModuleInterop": true
-  }
+    "esModuleInterop": true,
+  },
+  "exclude": ["node_modules", "./husky"]
 }

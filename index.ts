@@ -1,20 +1,20 @@
-import * as fs from 'node:fs';
+import {
+  createReadStream,
+  accessSync,
+  constants,
+  statSync,
+  existsSync,
+} from 'node:fs';
 import { resolve as resolvePath } from 'node:path';
 
-const fileTimestamp = new Date().toISOString().replace(/[:\-T\.Z]/g, '');
-const outputFilePath = resolvePath(
-  __dirname,
-  `./dna_conversion_samples/output_${fileTimestamp}`,
-);
-
 const qualityOffset = 33;
-const BinaryToDNAMap = {
+const binaryToDNAMap = {
   '00': 'A',
   '01': 'C',
   '10': 'G',
   '11': 'T',
 };
-type BinaryKey = keyof typeof BinaryToDNAMap;
+type BinaryKey = keyof typeof binaryToDNAMap;
 
 const encodeQuality = (binaryQuality: string): string => {
   const numericValue = parseInt(binaryQuality, 2);
@@ -28,14 +28,14 @@ export const formatEntry = (fragment: Buffer, entryIndex: number): string => {
   fragment.forEach((byte) => {
     const binaryString = byte.toString(2).padStart(8, '0');
     const key = binaryString.substring(0, 2);
-    if (!(key in BinaryToDNAMap)) {
+    if (!(key in binaryToDNAMap)) {
       throw new Error(
         `Invalid key '${key}' encountered. These keys are supported: ${Object.keys(
-          BinaryToDNAMap,
+          binaryToDNAMap,
         )}`,
       );
     }
-    dna += BinaryToDNAMap[key as BinaryKey];
+    dna += binaryToDNAMap[key as BinaryKey];
     quality += encodeQuality(binaryString.substring(2));
   });
 
@@ -46,53 +46,57 @@ ${quality}\n`;
 };
 
 export const convertDNAsequence = (
-  inputFilePath: string,
+  inputFullPath: string,
   fragmentLengthL: number,
 ) => {
-  let entryIndex = 1;
-  const inputStream = fs.createReadStream(inputFilePath);
-  const outputStream = fs.createWriteStream(outputFilePath);
+  return new Promise<void>((resolve, reject) => {
+    let entryIndex = 1;
+    const inputStream = createReadStream(inputFullPath);
 
-  inputStream.on('data', (chunk) => {
-    for (let i = 0; i < chunk.length; i += fragmentLengthL) {
-      const fragment = chunk.slice(i, i + fragmentLengthL);
-      if (typeof fragment === 'string') {
-        throw new Error('Invalid input. Fragment is not buffer');
+    inputStream.on('data', (chunk) => {
+      for (let i = 0; i < chunk.length; i += fragmentLengthL) {
+        const fragment = chunk.slice(i, i + fragmentLengthL);
+        if (typeof fragment === 'string') {
+          throw new Error('Invalid input. Fragment is not buffer');
+        }
+        const entry = formatEntry(fragment, entryIndex);
+        entryIndex++;
+        process.stdout.write(entry);
       }
-      const entry = formatEntry(fragment, entryIndex);
-      entryIndex++;
-      process.stdout.write(entry);
-      outputStream.write(entry);
-    }
-  });
+    });
 
-  inputStream.on('close', () => {
-    console.log('Transformation completed.');
-    outputStream.end();
+    inputStream.on('error', (err) => {
+      reject(err);
+    });
+
+    inputStream.on('close', () => {
+      resolve();
+    });
   });
 };
 
-function main() {
+export function main() {
   if (process.argv.length !== 4) {
     throw new Error(
       `Invalid number of arguments ${process.argv.length}. Expected exactly two arguments: inputPath and fragmentLengthL.`,
     );
   }
 
-  const inputPath = process.argv[2];
+  const inputPath = process.argv[2]
+  const inputFullPath = resolvePath(__dirname, inputPath);
   const fragmentLengthL = parseInt(process.argv[3], 10);
 
-  if (!fs.existsSync(inputPath)) {
+  if (!existsSync(inputFullPath)) {
     throw new Error(`File '${inputPath}' does not exist.`);
   }
 
   try {
-    fs.accessSync(inputPath, fs.constants.R_OK);
+    accessSync(inputFullPath, constants.R_OK);
   } catch (err) {
     throw new Error(`No read access to '${inputPath}'.`);
   }
 
-  const stats = fs.statSync(inputPath);
+  const stats = statSync(inputFullPath);
   if (stats.size === 0) {
     throw new Error(`File '${inputPath}' is empty.`);
   }
@@ -105,7 +109,7 @@ function main() {
     throw new Error(`Invalid input fragment length '${fragmentLengthL}'.`);
   }
 
-  convertDNAsequence(inputPath, fragmentLengthL);
+  convertDNAsequence(inputFullPath, fragmentLengthL);
 }
 
 if (require.main === module) {
