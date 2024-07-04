@@ -1,5 +1,5 @@
-import { main } from '../index';
-import { validInputFilePath } from './conversions.test';
+import { main } from '../src/index';
+import { validInputFilePath } from './processing-formating.test';
 
 describe('Tests input parameters of main function', () => {
   const originalProcessArgv = process.argv;
@@ -38,7 +38,7 @@ describe('Tests input parameters of main function', () => {
   it('throws an error if the file is empty', () => {
     process.argv = ['node', 'index.ts', './tests/empty', '7'];
     expect(main).toThrow("File './tests/empty' is empty.");
-  })
+  });
 
   it('throws an error if the fragment length is not a number', () => {
     process.argv = ['node', 'index.ts', validInputFilePath, 'abc'];
