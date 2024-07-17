@@ -1,7 +1,7 @@
 import { FragmentHandler } from '../src/fragment-handler';
 import { formatFragment } from '../src/format-fragment';
 
-jest.mock('../format-fragment', () => ({
+jest.mock('../src/format-fragment', () => ({
   formatFragment: jest
     .fn()
     .mockImplementation(
