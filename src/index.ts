@@ -32,8 +32,8 @@ export function main() {
     throw new Error(`Invalid input fragment length '${process.argv[3]}'.`);
   }
 
-  if (fragmentLengthL <= 0 || fragmentLengthL > stats.size) {
-    throw new Error(`Invalid input fragment length '${fragmentLengthL}'. Minimum is 1 a Max allowed is ${stats.size}`);
+  if (fragmentLengthL <= 0 ){
+    throw new Error(`Invalid input fragment length '${fragmentLengthL}'. Minimum is 1`);
   }
 
   processDNASequence(inputFullPath, fragmentLengthL);

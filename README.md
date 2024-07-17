@@ -8,7 +8,7 @@ the DNA molecules in the input are fragmented into pieces of equal length L; eac
 1. Install dependencies `npm ci`
 1. Run convertor `npm start <inputPath> <L>` where inputs are:
     1. inputPath is the path to an encoded file with DNA molecules fragmented in pieces
-    1. L length of a DNA fragment, 0 < l <= byte size of input file
+    1. L length of a DNA fragment, a number greater than zero
 
 Example with input file from the repo:
 
@@ -26,6 +26,6 @@ Test are run automatically on commit
 ## TODOs
 
 - test data generation
-- more test for the formater
+- more test for the formatter
 - redo parameter tests with mock-fs or just jest mock
 - performance tests with larger data set
