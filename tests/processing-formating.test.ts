@@ -1,37 +1,16 @@
-import { resolve as resolvePath } from 'node:path';
 import { readFileSync } from 'node:fs';
 import captureStdout from './stdoutCapture';
 import { formatFragment } from '../src/format-fragment';
 import { processDNASequence } from '../src/process-dna-sequence';
 import { FragmentHandler } from '../src/fragment-handler';
-
-export const validInputFilePath = resolvePath(
-  __dirname,
-  `../dna_conversion_samples/input`,
-);
-const output7Path = resolvePath(__dirname, `../dna_conversion_samples/output7`);
-const output15Path = resolvePath(
-  __dirname,
-  `../dna_conversion_samples/output15`,
-);
-const output80Path = resolvePath(
-  __dirname,
-  `../dna_conversion_samples/output80`,
-);
-const indexFiveFragmentExpectedOutput = `@READ_5
-ATTC
-+READ_5
-!A"\`
-`;
-const twoFragmentExpectedOutput = `@READ_1
-AT
-+READ_1
-!A
-@READ_2
-TC
-+READ_2
-"\`
-`;
+import {
+  indexFiveFragmentExpectedOutput,
+  output15Path,
+  output7Path,
+  output80Path,
+  twoFragmentExpectedOutput,
+  validInputFilePath,
+} from './paths-outputs';
 
 describe('Tests fragment formatting', () => {
   it('formats entry from a fragment', () => {

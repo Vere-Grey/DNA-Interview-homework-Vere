@@ -1,5 +1,5 @@
 import { main } from '../src/index';
-import { validInputFilePath } from './processing-formating.test';
+import { validInputFilePath } from './paths-outputs';
 
 describe('Tests input parameters of main function', () => {
   const originalProcessArgv = process.argv;
